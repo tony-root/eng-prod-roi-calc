@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROI Calculator - Engineering Productivity Improvements</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -840,12 +841,12 @@
 
         <div class="calculation-flow" id="monthByMonthFlow">
             <div class="calculation-flow-header" onclick="toggleMonthByMonth()">
-                <span>Month-by-Month Calculations (Debug)</span>
+                <span>Month-by-Month Analysis</span>
                 <span class="expand-icon">▼</span>
             </div>
             <div class="calculation-flow-content">
-                <div class="flow-diagram" id="monthByMonthDebug">
-                    <!-- Dynamic month-by-month content will be inserted here -->
+                <div class="flow-diagram" style="padding: 20px;">
+                    <canvas id="monthByMonthChart" width="800" height="400"></canvas>
                 </div>
             </div>
         </div>
@@ -1143,31 +1144,125 @@
             return monthlyResults;
         }
 
+        let monthByMonthChart = null;
+
         function updateMonthByMonthCalculations() {
             const inputs = getInputs();
             const monthlyResults = calculateMonthByMonth(inputs);
             
-            // Create debug display
-            let debugContent = '<h4>Month-by-Month Debug Data</h4>';
-            debugContent += '<div style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+            // Prepare data for chart
+            const months = monthlyResults.map(m => `Month ${m.month}`);
+            const cumulativeBenefits = monthlyResults.map(m => Math.round(m.cumulativeBenefit));
+            const cumulativeCosts = monthlyResults.map(m => Math.round(m.cumulativeCost));
+            const cumulativeNetBenefits = monthlyResults.map(m => Math.round(m.cumulativeNetBenefit));
             
-            monthlyResults.forEach(month => {
-                debugContent += `<div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px;">`;
-                debugContent += `<strong>Month ${month.month}:</strong><br>`;
-                debugContent += `  Monthly Benefit: $${Math.round(month.monthlyBenefit).toLocaleString()}<br>`;
-                debugContent += `  Monthly Recurring: $${Math.round(month.monthlyRecurringCosts).toLocaleString()}<br>`;
-                debugContent += `  Monthly One-time: $${Math.round(month.monthlyOneTimeCosts).toLocaleString()}<br>`;
-                debugContent += `  Monthly Total Cost: $${Math.round(month.monthlyTotalCosts).toLocaleString()}<br>`;
-                debugContent += `  Monthly Net: $${Math.round(month.monthlyNetBenefit).toLocaleString()}<br>`;
-                debugContent += `  Cumulative Benefit: $${Math.round(month.cumulativeBenefit).toLocaleString()}<br>`;
-                debugContent += `  Cumulative Cost: $${Math.round(month.cumulativeCost).toLocaleString()}<br>`;
-                debugContent += `  Cumulative Net: $${Math.round(month.cumulativeNetBenefit).toLocaleString()}<br>`;
-                debugContent += `  Cumulative ROI: ${Math.round(month.cumulativeROI)}%<br>`;
-                debugContent += `</div>`;
+            // Get canvas context
+            const ctx = document.getElementById('monthByMonthChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (monthByMonthChart) {
+                monthByMonthChart.destroy();
+            }
+            
+            // Create new chart
+            monthByMonthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Cumulative Benefits',
+                            data: cumulativeBenefits,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Cumulative Costs',
+                            data: cumulativeCosts,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Cumulative Net Benefit',
+                            data: cumulativeNetBenefits,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.1,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
+                            },
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return '#2c3e50'; // Bold dark color for zero line
+                                    }
+                                    return '#e0e0e0'; // Light gray for other grid lines
+                                },
+                                lineWidth: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return 3; // Bold line for zero
+                                    }
+                                    return 1; // Normal line width for other grid lines
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'ROI Analysis: Cumulative Benefits vs Costs Over Time',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
             });
-            
-            debugContent += '</div>';
-            document.getElementById('monthByMonthDebug').innerHTML = debugContent;
         }
 
         function toggleCalculationFlow() {
