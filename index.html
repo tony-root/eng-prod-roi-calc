@@ -838,6 +838,18 @@
             </div>
         </div>
 
+        <div class="calculation-flow" id="monthByMonthFlow">
+            <div class="calculation-flow-header" onclick="toggleMonthByMonth()">
+                <span>Month-by-Month Calculations (Debug)</span>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="calculation-flow-content">
+                <div class="flow-diagram" id="monthByMonthDebug">
+                    <!-- Dynamic month-by-month content will be inserted here -->
+                </div>
+            </div>
+        </div>
+
         <div class="calculation-flow" id="calculationFlow">
             <div class="calculation-flow-header" onclick="toggleCalculationFlow()">
                 <span>Full Calculation Flow</span>
@@ -1015,6 +1027,9 @@
             document.getElementById('oneTimeCosts').textContent = safeCurrency(result.oneTimeCosts);
             document.getElementById('maintenanceEngineerCosts').textContent = safeCurrency(result.maintenanceEngineerCosts);
             document.getElementById('hostingCosts').textContent = safeCurrency(result.hostingCosts);
+            
+            // Update month-by-month calculations
+            updateMonthByMonthCalculations();
         }
 
         function updateFormulas(inputs, result) {
@@ -1085,9 +1100,84 @@
                 `Maintenance Costs =<br>// ${inputs.maintenanceEngineers}<br>Maintenance Engineers ×<br>// $${inputs.maintenanceEngineerHourlyCost}<br>Maintenance Cost Per Hour ×<br>// ${inputs.hoursPerWeek}<br>Hours Per Week ×<br>// ${inputs.calculationPeriodWeeks}<br>Calculation Period`;
         }
 
+        function calculateMonthByMonth(inputs) {
+            const monthlyResults = [];
+            const monthlyBenefit = inputs.numEngineers * 
+                (inputs.hoursPerWeek * inputs.assistableTasksTimePercentage * inputs.timeSavedPercentage) * 
+                4.33 * inputs.engineerHourlyCost; // 4.33 weeks per month
+            
+            const monthlyRecurringCosts = inputs.numEngineers * inputs.agentToolCostPerEngineerPerMonth + 
+                inputs.hostingCostPerMonth +
+                inputs.maintenanceEngineers * inputs.maintenanceEngineerHourlyCost * inputs.hoursPerWeek * 4.33; // Monthly maintenance cost
+            
+            // One-time costs (applied only to month 1)
+            const oneTimeSetupCost = inputs.numEngineers * inputs.weeksToSetupAndTrain * inputs.hoursPerWeek * inputs.engineerHourlyCost;
+            const oneTimeImplementationCost = inputs.initialImplementationWeeks * inputs.hoursPerWeek * inputs.maintenanceEngineerHourlyCost;
+            const totalOneTimeCosts = oneTimeSetupCost + oneTimeImplementationCost;
+            
+            let cumulativeBenefit = 0;
+            let cumulativeCost = 0;
+            
+            for (let month = 1; month <= inputs.calculationPeriodMonths; month++) {
+                const monthlyData = {
+                    month: month,
+                    monthlyBenefit: monthlyBenefit,
+                    monthlyRecurringCosts: monthlyRecurringCosts,
+                    monthlyOneTimeCosts: month === 1 ? totalOneTimeCosts : 0,
+                    monthlyTotalCosts: monthlyRecurringCosts + (month === 1 ? totalOneTimeCosts : 0),
+                    monthlyNetBenefit: monthlyBenefit - (monthlyRecurringCosts + (month === 1 ? totalOneTimeCosts : 0))
+                };
+                
+                // Update cumulative values
+                cumulativeBenefit += monthlyData.monthlyBenefit;
+                cumulativeCost += monthlyData.monthlyTotalCosts;
+                
+                monthlyData.cumulativeBenefit = cumulativeBenefit;
+                monthlyData.cumulativeCost = cumulativeCost;
+                monthlyData.cumulativeNetBenefit = cumulativeBenefit - cumulativeCost;
+                monthlyData.cumulativeROI = cumulativeCost > 0 ? (monthlyData.cumulativeNetBenefit / cumulativeCost) * 100 : 0;
+                
+                monthlyResults.push(monthlyData);
+            }
+            
+            return monthlyResults;
+        }
+
+        function updateMonthByMonthCalculations() {
+            const inputs = getInputs();
+            const monthlyResults = calculateMonthByMonth(inputs);
+            
+            // Create debug display
+            let debugContent = '<h4>Month-by-Month Debug Data</h4>';
+            debugContent += '<div style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+            
+            monthlyResults.forEach(month => {
+                debugContent += `<div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px;">`;
+                debugContent += `<strong>Month ${month.month}:</strong><br>`;
+                debugContent += `  Monthly Benefit: $${Math.round(month.monthlyBenefit).toLocaleString()}<br>`;
+                debugContent += `  Monthly Recurring: $${Math.round(month.monthlyRecurringCosts).toLocaleString()}<br>`;
+                debugContent += `  Monthly One-time: $${Math.round(month.monthlyOneTimeCosts).toLocaleString()}<br>`;
+                debugContent += `  Monthly Total Cost: $${Math.round(month.monthlyTotalCosts).toLocaleString()}<br>`;
+                debugContent += `  Monthly Net: $${Math.round(month.monthlyNetBenefit).toLocaleString()}<br>`;
+                debugContent += `  Cumulative Benefit: $${Math.round(month.cumulativeBenefit).toLocaleString()}<br>`;
+                debugContent += `  Cumulative Cost: $${Math.round(month.cumulativeCost).toLocaleString()}<br>`;
+                debugContent += `  Cumulative Net: $${Math.round(month.cumulativeNetBenefit).toLocaleString()}<br>`;
+                debugContent += `  Cumulative ROI: ${Math.round(month.cumulativeROI)}%<br>`;
+                debugContent += `</div>`;
+            });
+            
+            debugContent += '</div>';
+            document.getElementById('monthByMonthDebug').innerHTML = debugContent;
+        }
+
         function toggleCalculationFlow() {
             const flowElement = document.getElementById('calculationFlow');
             flowElement.classList.toggle('expanded');
+        }
+
+        function toggleMonthByMonth() {
+            const monthElement = document.getElementById('monthByMonthFlow');
+            monthElement.classList.toggle('expanded');
         }
 
         function updateCalculationFlow(inputs, result) {
