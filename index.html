@@ -1155,6 +1155,7 @@
             const cumulativeBenefits = monthlyResults.map(m => Math.round(m.cumulativeBenefit));
             const cumulativeCosts = monthlyResults.map(m => Math.round(m.cumulativeCost));
             const cumulativeNetBenefits = monthlyResults.map(m => Math.round(m.cumulativeNetBenefit));
+            const cumulativeROI = monthlyResults.map(m => Math.round(m.cumulativeROI * 10) / 10); // Round to 1 decimal
             
             // Get canvas context
             const ctx = document.getElementById('monthByMonthChart').getContext('2d');
@@ -1175,27 +1176,44 @@
                             data: cumulativeBenefits,
                             borderColor: '#27ae60',
                             backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                            borderWidth: 3,
+                            borderWidth: 1.5,
                             tension: 0.1,
-                            fill: false
+                            fill: false,
+                            yAxisID: 'y',
+                            borderDash: [5, 5] // Dashed line for money
                         },
                         {
                             label: 'Cumulative Costs',
                             data: cumulativeCosts,
                             borderColor: '#e74c3c',
                             backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                            borderWidth: 3,
+                            borderWidth: 1.5,
                             tension: 0.1,
-                            fill: false
+                            fill: false,
+                            yAxisID: 'y',
+                            borderDash: [5, 5] // Dashed line for money
                         },
                         {
                             label: 'Cumulative Net Benefit',
                             data: cumulativeNetBenefits,
                             borderColor: '#3498db',
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 1.5,
+                            tension: 0.1,
+                            fill: false,
+                            yAxisID: 'y',
+                            borderDash: [5, 5] // Dashed line for money
+                        },
+                        {
+                            label: 'Cumulative ROI (%)',
+                            data: cumulativeROI,
+                            borderColor: '#9b59b6',
+                            backgroundColor: 'rgba(155, 89, 182, 0.1)',
                             borderWidth: 3,
                             tension: 0.1,
-                            fill: false
+                            fill: false,
+                            yAxisID: 'y1'
+                            // No borderDash - solid line for ROI
                         }
                     ]
                 },
@@ -1204,6 +1222,9 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
@@ -1229,6 +1250,23 @@
                                 }
                             }
                         },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'ROI (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false, // Don't draw grid lines for right axis
+                            }
+                        },
                         x: {
                             title: {
                                 display: true,
@@ -1252,7 +1290,11 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                    if (context.dataset.label === 'Cumulative ROI (%)') {
+                                        return context.dataset.label + ': ' + context.parsed.y + '%';
+                                    } else {
+                                        return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                    }
                                 }
                             }
                         }
