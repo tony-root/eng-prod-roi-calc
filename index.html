@@ -457,9 +457,13 @@
                 <span class="edit-icon">✏️</span>
             </div>
         </div>
-        <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 1.1em;">
-            Calculates ROI over <strong id="periodDisplay">12</strong> months
-        </p>
+
+        <!-- Month-by-Month Chart -->
+        <div style="margin-bottom: 40px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="height: 400px; position: relative;">
+                <canvas id="monthByMonthChart"></canvas>
+            </div>
+        </div>
         
         <div class="calculator-grid">
             <div class="inputs-section">
@@ -839,17 +843,6 @@
             </div>
         </div>
 
-        <div class="calculation-flow" id="monthByMonthFlow">
-            <div class="calculation-flow-header" onclick="toggleMonthByMonth()">
-                <span>Month-by-Month Analysis</span>
-                <span class="expand-icon">▼</span>
-            </div>
-            <div class="calculation-flow-content">
-                <div class="flow-diagram" style="padding: 20px;">
-                    <canvas id="monthByMonthChart" width="800" height="400"></canvas>
-                </div>
-            </div>
-        </div>
 
         <div class="calculation-flow" id="calculationFlow">
             <div class="calculation-flow-header" onclick="toggleCalculationFlow()">
@@ -991,7 +984,6 @@
             }
 
             // Update period displays
-            document.getElementById('periodDisplay').textContent = safeFormat(inputs.calculationPeriodMonths);
             document.getElementById('roiPeriodDisplay').textContent = safeFormat(inputs.calculationPeriodMonths);
 
             // Update slider value displays
