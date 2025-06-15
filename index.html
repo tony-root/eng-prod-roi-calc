@@ -1151,7 +1151,23 @@
             const monthlyResults = calculateMonthByMonth(inputs);
             
             // Prepare data for chart
-            const months = monthlyResults.map(m => `Month ${m.month}`);
+            const months = monthlyResults.map(m => {
+                const monthNumber = m.month;
+                if (monthNumber < 12) {
+                    return `${monthNumber}m`;
+                } else {
+                    const years = Math.floor(monthNumber / 12);
+                    const remainingMonths = monthNumber % 12;
+                    
+                    if (remainingMonths === 0) {
+                        // Even number of years - make bold
+                        return years === 1 ? '1y' : `${years}y`;
+                    } else {
+                        // X year Y months
+                        return `${years}y ${remainingMonths}m`;
+                    }
+                }
+            });
             const cumulativeBenefits = monthlyResults.map(m => Math.round(m.cumulativeBenefit));
             const cumulativeCosts = monthlyResults.map(m => Math.round(m.cumulativeCost));
             const cumulativeNetBenefits = monthlyResults.map(m => Math.round(m.cumulativeNetBenefit));
@@ -1168,6 +1184,33 @@
             // Create new chart
             monthByMonthChart = new Chart(ctx, {
                 type: 'line',
+                plugins: [{
+                    id: 'yearLines',
+                    afterDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const chartArea = chart.chartArea;
+                        const xScale = chart.scales.x;
+                        
+                        // Set style for year lines
+                        ctx.save();
+                        ctx.strokeStyle = '#666';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([4, 4]);
+                        
+                        // Draw vertical lines at each year (months 12, 24, 36, etc.)
+                        monthlyResults.forEach((result, index) => {
+                            if (result.month % 12 === 0 && result.month > 0) {
+                                const x = xScale.getPixelForValue(index);
+                                ctx.beginPath();
+                                ctx.moveTo(x, chartArea.top);
+                                ctx.lineTo(x, chartArea.bottom);
+                                ctx.stroke();
+                            }
+                        });
+                        
+                        ctx.restore();
+                    }
+                }],
                 data: {
                     labels: months,
                     datasets: [
@@ -1220,6 +1263,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: false,
                     scales: {
                         y: {
                             type: 'linear',
@@ -1271,6 +1315,22 @@
                             title: {
                                 display: true,
                                 text: 'Time Period'
+                            },
+                            ticks: {
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    return label;
+                                },
+                                font: function(context) {
+                                    const label = context.chart.data.labels[context.index];
+                                    // Make full years bold (labels ending with 'y' and no 'm')
+                                    if (label && label.match(/^\d+y$/)) {
+                                        return {
+                                            weight: 'bold'
+                                        };
+                                    }
+                                    return {};
+                                }
                             }
                         }
                     },
