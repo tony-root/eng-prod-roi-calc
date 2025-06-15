@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROI Calculator - Engineering Productivity Improvements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .tool-name {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: 700;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .title-prefix {
+            color: #7f8c8d;
+            font-size: 1.4em;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .title-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .title-input {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2em;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: inherit;
+            font-weight: 600;
+            outline: none;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .title-input:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .title-input:focus {
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px solid #3498db;
+        }
+
+        .edit-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            color: #7f8c8d;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .title-input-wrapper:hover .edit-icon {
+            opacity: 1;
+        }
+
+        .title-input:focus + .edit-icon {
+            opacity: 0;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .inputs-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        .outputs-section {
+            background: #fff;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .input-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .output-subsection {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .output-subsection:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .output-section-title {
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            display: inline-block;
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .output-section {
+            margin-bottom: 25px;
+        }
+
+        .output-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .output-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .output-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .output-label {
+            font-weight: 500;
+        }
+
+        .output-value {
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .roi-highlight {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .roi-highlight .roi-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+
+        .tooltip .question-mark {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: bold;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            
+            /* Position the tooltip */
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            
+            /* Fade in tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .formula {
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .calculation-flow {
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .calculation-flow-header {
+            background: #3498db;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .calculation-flow-header:hover {
+            background: #2980b9;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+        }
+
+        .calculation-flow.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .calculation-flow-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .calculation-flow.expanded .calculation-flow-content {
+            max-height: 2000px;
+        }
+
+        .flow-diagram {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .flow-section {
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+
+        .flow-section h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .flow-calculation {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+        }
+
+        .flow-variable {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .flow-operator {
+            color: #8e44ad;
+            font-weight: bold;
+        }
+
+        .flow-result {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .tooltip .tooltiptext {
+                width: 250px;
+                margin-left: -125px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="tool-name">Productivity ROI Calculator</h1>
+        <div class="title-section">
+            <div class="title-prefix">Improvement:</div>
+            <div class="title-input-wrapper">
+                <input type="text" id="calculatorTitle" class="title-input" value="My Productivity Improvement" placeholder="Enter improvement name...">
+                <span class="edit-icon">✏️</span>
+            </div>
+        </div>
+        <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 1.1em;">
+            Calculates ROI over <strong id="periodDisplay">12</strong> months
+        </p>
+        
+        <div class="calculator-grid">
+            <div class="inputs-section">
+                <h2>Input Parameters</h2>
+                
+                <!-- General Section -->
+                <div class="input-section">
+                    <h3 class="section-title">General</h3>
+                    
+                    <div class="input-group">
+                        <label for="calculationPeriodWeeks">
+                            Calculation Period (Months)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">The time period over which to calculate ROI. This determines the total timeline for measuring benefits and costs. Common values: 6 months, 12 months (1 year), 24 months (2 years).</span>
+                            </div>
+                        </label>
+                        <input type="number" id="calculationPeriodWeeks" value="12" min="1" max="36">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="hoursPerWeek">
+                            Hours Per Week
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Standard working hours per engineer per week. This is used to calculate setup costs and maintenance effort. Typically 38-40 hours for full-time engineers.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="hoursPerWeek" value="38" min="20" max="60">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="numEngineers">
+                            Team Size (Engineers)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Total number of engineers who will use the productivity improvement. This includes all engineers who will benefit from the tool, process, or solution being implemented.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="numEngineers" value="180" min="1" max="1000">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="engineerHourlyCost">
+                            Engineer Cost ($/hour)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Fully loaded cost per hour for an engineer, including salary, benefits, overhead, and office space. Typically 1.5-2x the base hourly salary rate. For a $160k salary engineer, this is approximately $80-100/hour.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="engineerHourlyCost" value="80" min="30" max="200">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="maintenanceEngineerHourlyCost">
+                            Maintenance Engineer Cost ($/hour)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Fully loaded hourly cost for maintenance engineers. Often slightly higher than regular engineers due to specialized skills in tooling, DevOps, or system administration.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="maintenanceEngineerHourlyCost" value="100" min="50" max="250">
+                    </div>
+                </div>
+
+                <!-- Productivity Gains Section -->
+                <div class="input-section">
+                    <h3 class="section-title">Productivity Gains</h3>
+                    
+                    <div class="input-group">
+                        <label for="assistableTasksTimePercentage">
+                            Improvable Work Time: <span class="slider-value" id="assistableValue">50%</span> (<span class="slider-value" id="assistableHours">19 hrs/week</span>)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Percentage of total work time spent on tasks that can be improved by the productivity solution. Not all engineering work can be enhanced - some involves meetings and other communication forms that tools can't optimize.</span>
+                            </div>
+                        </label>
+                        <input type="range" id="assistableTasksTimePercentage" value="50" min="1" max="100">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="timeSavedPercentage">
+                            Time Savings on Improvable Work: <span class="slider-value" id="timeSavedValue">33%</span> (<span class="slider-value" id="timeSavedHours">6.3 hrs/week</span>)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Percentage of time saved on improvable tasks when using the productivity solution. This represents the efficiency gain - if a task took 1 hour before, a 33% savings means it now takes 40 minutes.</span>
+                            </div>
+                        </label>
+                        <input type="range" id="timeSavedPercentage" value="33" min="1" max="100">
+                    </div>
+                </div>
+
+                <!-- Solution Cost - One-time Section -->
+                <div class="input-section">
+                    <h3 class="section-title">Solution Cost - One-time</h3>
+                    
+                    <div class="input-group">
+                        <label for="initialImplementationWeeks">
+                            Initial Implementation Time (weeks)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Time required to initially implement the productivity solution before it can be used by the team. This is done by maintenance engineers and represents weeks of single engineer's work. This is a one-time cost that occurs before any productivity benefits begin.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="initialImplementationWeeks" value="4" min="0" max="52" step="0.5">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weeksToSetupAndTrain">
+                            Setup/Training Time (weeks per engineer)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Time required per engineer to set up the solution and get trained to full productivity. This includes learning time, configuration, and adaptation period. Measured in full-time weeks per engineer, which are realistically spread out over months.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="weeksToSetupAndTrain" value="1" min="0.5" max="8" step="0.5">
+                    </div>
+                </div>
+
+                <!-- Solution Cost - Ongoing Section -->
+                <div class="input-section">
+                    <h3 class="section-title">Solution Cost - Ongoing</h3>
+                    
+                    <div class="input-group">
+                        <label for="agentToolCostPerEngineerPerMonth">
+                            Tool/Solution Cost ($/engineer/month)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Monthly recurring cost per engineer for the productivity solution. This includes software licenses, subscriptions, or usage fees. For AI coding tools, this is typically $20-200/month per developer.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="agentToolCostPerEngineerPerMonth" value="100" min="20" max="500">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="maintenanceEngineers">
+                            Maintenance Engineers
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Number of full-time engineers dedicated to maintaining, supporting, and improving the productivity solution. This includes DevOps, tooling engineers, or specialists who ensure the solution continues working effectively.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="maintenanceEngineers" value="2" min="0" max="10">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="hostingCostPerMonth">
+                            Hosting/Infrastructure Cost ($/month)
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Monthly hosting and infrastructure costs for the productivity solution. This includes cloud hosting, databases, storage, compute resources, and any additional infrastructure required to run the solution.</span>
+                            </div>
+                        </label>
+                        <input type="number" id="hostingCostPerMonth" value="0" min="0" max="10000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="outputs-section">
+                <div class="output-section">
+                    <div class="roi-highlight">
+                        <div>
+                            ROI over <span id="roiPeriodDisplay">12</span> months
+                            <div class="tooltip">
+                                <span class="question-mark">?</span>
+                                <span class="tooltiptext">Return on Investment - the percentage return from the productivity improvement over the specified time period.
+                                <div class="formula" data-formula="roi">ROI =<br>(Net Benefit ÷<br>Total Cost) ×<br>100%</div>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="roi-value" id="roiValue">0%</div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 15px 0;">
+                        <a id="shareButton" href="#" onclick="shareCalculation(); return false;" style="background: #3498db; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-block;">
+                            📋 Share Calculation
+                        </a>
+                    </div>
+                    
+                    <h3>Summary</h3>
+                    <div class="output-grid">
+                        <div class="output-item">
+                            <span class="output-label">
+                                Net Benefit:
+                                <div class="tooltip">
+                                    <span class="question-mark">?</span>
+                                    <span class="tooltiptext">Total financial benefit after subtracting all costs. This is the actual profit generated by the productivity improvement.
+                                    <div class="formula" data-formula="netBenefit">Net Benefit =<br>Total Benefit -<br>Total Cost</div>
+                                    </span>
+                                </div>
+                            </span>
+                            <span class="output-value" id="netBenefit">$0</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="output-label">
+                                Total Benefit:
+                                <div class="tooltip">
+                                    <span class="question-mark">?</span>
+                                    <span class="tooltiptext">Total value created by time savings over the calculation period. This represents the monetary value of engineer hours saved.
+                                    <div class="formula" data-formula="totalBenefit">Total Benefit =<br>Total Hours Saved ×<br>Engineer Cost</div>
+                                    </span>
+                                </div>
+                            </span>
+                            <span class="output-value" id="totalBenefit">$0</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="output-label">
+                                Total Cost:
+                                <div class="tooltip">
+                                    <span class="question-mark">?</span>
+                                    <span class="tooltiptext">Sum of all costs associated with implementing and maintaining the productivity solution over the calculation period.
+                                    <div class="formula" data-formula="totalCost">Total Cost =<br>Recurring Costs +<br>One-time Costs +<br>Maintenance Engineer Costs</div>
+                                    </span>
+                                </div>
+                            </span>
+                            <span class="output-value" id="totalCost">$0</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="output-label">
+                                Payback Period:
+                                <div class="tooltip">
+                                    <span class="question-mark">?</span>
+                                    <span class="tooltiptext">Time required to recover the initial investment through generated benefits. After this period, the solution generates pure profit.
+                                    <div class="formula" data-formula="paybackPeriod">Payback Period =<br>Total Cost ÷<br>Monthly Benefit</div>
+                                    </span>
+                                </div>
+                            </span>
+                            <span class="output-value" id="paybackPeriod">0 weeks</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="output-label">
+                                Monthly Benefit:
+                                <div class="tooltip">
+                                    <span class="question-mark">?</span>
+                                    <span class="tooltiptext">Average monthly financial benefit generated by the productivity improvement over the calculation period.
+                                    <div class="formula" data-formula="monthlyBenefit">Monthly Benefit =<br>Total Benefit ÷<br>Calculation Period (months)</div>
+                                    </span>
+                                </div>
+                            </span>
+                            <span class="output-value" id="monthlyBenefit">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="output-section">
+                    <h3>Key Intermediate Results</h3>
+                    
+                    <!-- Productivity Benefits Section -->
+                    <div class="output-subsection">
+                        <h4 class="output-section-title">Productivity Benefits</h4>
+                        <div class="output-grid">
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Effective Improvable Hours:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Hours per week per engineer spent on work that can be improved by the productivity solution.
+                                        <div class="formula" data-formula="effectiveAssistableHours">Effective Improvable Hours =<br>Hours Per Week ×<br>Improvable Work Time %</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="effectiveAssistableHours">0 hrs/week/engineer</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Hours Saved Per Week:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Actual hours saved per engineer per week by using the productivity solution.
+                                        <div class="formula" data-formula="hoursPerWeekSaved">Hours Saved Per Week =<br>Effective Improvable Hours ×<br>Time Savings %</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="hoursPerWeekSaved">0 hrs/week/engineer</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Total Hours Saved:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Total hours saved across all engineers over the entire calculation period.
+                                        <div class="formula" data-formula="totalHoursSaved">Total Hours Saved =<br>Team Size ×<br>Hours Saved Per Week ×<br>Calculation Period</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="totalHoursSaved">0 hours</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- One-time Costs Section -->
+                    <div class="output-subsection">
+                        <h4 class="output-section-title">One-time Costs</h4>
+                        <div class="output-grid">
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Setup/Training Cost Per Engineer:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">One-time cost to set up and train each engineer on the productivity solution.
+                                        <div class="formula" data-formula="setupTrainingCost">Setup Cost Per Engineer =<br>Setup/Training Time (per engineer) ×<br>Hours Per Week ×<br>Engineer Cost</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="setupTrainingCost">$0</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Initial Implementation Cost:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">One-time cost for maintenance engineers to initially implement the productivity solution before it can be used by the team.
+                                        <div class="formula" data-formula="initialImplementationCost">Initial Implementation Cost =<br>Initial Implementation Time ×<br>Hours Per Week ×<br>Maintenance Engineer Cost</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="initialImplementationCost">$0</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    One-time Costs:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Total setup and training costs for all engineers (paid once at the beginning).
+                                        <div class="formula" data-formula="oneTimeCosts">One-time Costs =<br>Team Size ×<br>Setup/Training Cost Per Engineer</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="oneTimeCosts">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ongoing Costs Section -->
+                    <div class="output-subsection">
+                        <h4 class="output-section-title">Ongoing Costs</h4>
+                        <div class="output-grid">
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Recurring Costs:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Total ongoing costs for the productivity solution over the calculation period.
+                                        <div class="formula" data-formula="recurringCosts">Recurring Costs =<br>Team Size ×<br>Tool Cost Per Month ×<br>Total Months</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="recurringCosts">$0</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Maintenance Engineer Costs:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Total cost for dedicated engineers to maintain and support the productivity solution over the calculation period.
+                                        <div class="formula" data-formula="maintenanceEngineerCosts">Maintenance Costs =<br>Maintenance Engineers ×<br>Maintenance Cost Per Hour ×<br>Hours Per Week ×<br>Calculation Period</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="maintenanceEngineerCosts">$0</span>
+                            </div>
+                            <div class="output-item">
+                                <span class="output-label">
+                                    Hosting/Infrastructure Costs:
+                                    <div class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltiptext">Total hosting and infrastructure costs over the calculation period.
+                                        <div class="formula" data-formula="hostingCosts">Hosting Costs =<br>Hosting Cost Per Month ×<br>Total Months</div>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class="output-value" id="hostingCosts">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="calculation-flow" id="calculationFlow">
+            <div class="calculation-flow-header" onclick="toggleCalculationFlow()">
+                <span>Full Calculation Flow</span>
+                <span class="expand-icon">▼</span>
+            </div>
+            <div class="calculation-flow-content">
+                <div class="flow-diagram" id="flowDiagram">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial default values for all form inputs
+        const initialValues = {
+            title: "My Productivity Improvement",
+            numEngineers: 100,
+            engineerHourlyCost: 80,
+            hoursPerWeek: 38,
+            calculationPeriodMonths: 12,
+            assistableTasksTimePercentage: 30,
+            timeSavedPercentage: 25,
+            agentToolCostPerEngineerPerMonth: 0,
+            weeksToSetupAndTrain: 0,
+            maintenanceEngineers: 0,
+            maintenanceEngineerHourlyCost: 100,
+            initialImplementationWeeks: 0,
+            hostingCostPerMonth: 0
+        };
+
+        // Convert calculation functions from the original JavaScript
+        function calculateAgentCodingROI(inputs) {
+            // Validate inputs and handle edge cases
+            const safeInputs = {
+                numEngineers: Math.max(0, inputs.numEngineers || 0),
+                engineerHourlyCost: Math.max(0, inputs.engineerHourlyCost || 0),
+                hoursPerWeek: Math.max(0, inputs.hoursPerWeek || 0),
+                calculationPeriodWeeks: Math.max(0, inputs.calculationPeriodWeeks || 0),
+                calculationPeriodMonths: Math.max(0, inputs.calculationPeriodMonths || 0),
+                assistableTasksTimePercentage: Math.max(0, Math.min(1, inputs.assistableTasksTimePercentage || 0)),
+                timeSavedPercentage: Math.max(0, Math.min(1, inputs.timeSavedPercentage || 0)),
+                agentToolCostPerEngineerPerMonth: Math.max(0, inputs.agentToolCostPerEngineerPerMonth || 0),
+                weeksToSetupAndTrain: Math.max(0, inputs.weeksToSetupAndTrain || 0),
+                maintenanceEngineers: Math.max(0, inputs.maintenanceEngineers || 0),
+                maintenanceEngineerHourlyCost: Math.max(0, inputs.maintenanceEngineerHourlyCost || 0),
+                initialImplementationWeeks: Math.max(0, inputs.initialImplementationWeeks || 0),
+                hostingCostPerMonth: Math.max(0, inputs.hostingCostPerMonth || 0)
+            };
+
+            const effectiveAssistableHours = safeInputs.hoursPerWeek * safeInputs.assistableTasksTimePercentage;
+            const hoursPerWeekSaved = effectiveAssistableHours * safeInputs.timeSavedPercentage;
+            const setupAndTrainingCostPerEngineer = safeInputs.weeksToSetupAndTrain * safeInputs.hoursPerWeek * safeInputs.engineerHourlyCost;
+            const initialImplementationCost = safeInputs.initialImplementationWeeks * safeInputs.hoursPerWeek * safeInputs.maintenanceEngineerHourlyCost;
+            const totalMonths = safeInputs.calculationPeriodWeeks / 4.33;
+
+            const totalHoursSaved = safeInputs.numEngineers * hoursPerWeekSaved * safeInputs.calculationPeriodWeeks;
+            const totalBenefit = totalHoursSaved * safeInputs.engineerHourlyCost;
+
+            const recurringCosts = safeInputs.numEngineers * safeInputs.agentToolCostPerEngineerPerMonth * totalMonths;
+            const oneTimeCosts = safeInputs.numEngineers * setupAndTrainingCostPerEngineer + initialImplementationCost;
+            const maintenanceEngineerCosts = safeInputs.maintenanceEngineers * safeInputs.maintenanceEngineerHourlyCost * safeInputs.hoursPerWeek * safeInputs.calculationPeriodWeeks;
+            const hostingCosts = safeInputs.hostingCostPerMonth * totalMonths;
+            const totalCost = recurringCosts + oneTimeCosts + maintenanceEngineerCosts + hostingCosts;
+
+            const netBenefit = totalBenefit - totalCost;
+            
+            // Handle division by zero for ROI calculation
+            const roi = totalCost > 0 ? (netBenefit / totalCost) * 100 : 0;
+            
+            // Handle division by zero for payback period and monthly benefit
+            const monthlyBenefit = safeInputs.calculationPeriodMonths > 0 ? totalBenefit / safeInputs.calculationPeriodMonths : 0;
+            const paybackPeriodMonths = monthlyBenefit > 0 ? totalCost / monthlyBenefit : 0;
+
+            return {
+                effectiveAssistableHours,
+                hoursPerWeekSaved,
+                setupAndTrainingCostPerEngineer,
+                initialImplementationCost,
+                totalMonths,
+                totalHoursSaved,
+                totalBenefit,
+                recurringCosts,
+                oneTimeCosts,
+                maintenanceEngineerCosts,
+                hostingCosts,
+                totalCost,
+                netBenefit,
+                roi: isFinite(roi) ? roi : 0,
+                paybackPeriodMonths: isFinite(paybackPeriodMonths) ? Math.round(paybackPeriodMonths) : 0,
+                monthlyBenefit: isFinite(monthlyBenefit) ? Math.round(monthlyBenefit) : 0
+            };
+        }
+
+        function getInputs() {
+            // Helper function to safely parse float values
+            function safeParseFloat(elementId, defaultValue = 0) {
+                const element = document.getElementById(elementId);
+                if (!element) return defaultValue;
+                const value = parseFloat(element.value);
+                return isNaN(value) ? defaultValue : value;
+            }
+
+            const calculationPeriodMonths = safeParseFloat('calculationPeriodWeeks', initialValues.calculationPeriodMonths);
+            const calculationPeriodWeeks = calculationPeriodMonths * 4.33; // Convert months to weeks
+            
+            return {
+                numEngineers: safeParseFloat('numEngineers', initialValues.numEngineers),
+                engineerHourlyCost: safeParseFloat('engineerHourlyCost', initialValues.engineerHourlyCost),
+                hoursPerWeek: safeParseFloat('hoursPerWeek', initialValues.hoursPerWeek),
+                calculationPeriodWeeks: calculationPeriodWeeks,
+                calculationPeriodMonths: calculationPeriodMonths,
+                assistableTasksTimePercentage: safeParseFloat('assistableTasksTimePercentage', initialValues.assistableTasksTimePercentage) / 100,
+                timeSavedPercentage: safeParseFloat('timeSavedPercentage', initialValues.timeSavedPercentage) / 100,
+                agentToolCostPerEngineerPerMonth: safeParseFloat('agentToolCostPerEngineerPerMonth', initialValues.agentToolCostPerEngineerPerMonth),
+                weeksToSetupAndTrain: safeParseFloat('weeksToSetupAndTrain', initialValues.weeksToSetupAndTrain),
+                maintenanceEngineers: safeParseFloat('maintenanceEngineers', initialValues.maintenanceEngineers),
+                maintenanceEngineerHourlyCost: safeParseFloat('maintenanceEngineerHourlyCost', initialValues.maintenanceEngineerHourlyCost),
+                initialImplementationWeeks: safeParseFloat('initialImplementationWeeks', initialValues.initialImplementationWeeks),
+                hostingCostPerMonth: safeParseFloat('hostingCostPerMonth', initialValues.hostingCostPerMonth)
+            };
+        }
+
+        function updateOutputs() {
+            const inputs = getInputs();
+            const result = calculateAgentCodingROI(inputs);
+
+            // Helper function to safely format numbers
+            function safeFormat(value, decimals = 0) {
+                if (!isFinite(value) || isNaN(value)) return '0';
+                return decimals > 0 ? (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toString() : Math.round(value).toString();
+            }
+
+            function safeCurrency(value) {
+                if (!isFinite(value) || isNaN(value)) return '$0';
+                if (Math.abs(value) > 999999999999) return value > 0 ? '$999B+' : '-$999B+';
+                return '$' + Math.round(value).toLocaleString();
+            }
+
+            // Update period displays
+            document.getElementById('periodDisplay').textContent = safeFormat(inputs.calculationPeriodMonths);
+            document.getElementById('roiPeriodDisplay').textContent = safeFormat(inputs.calculationPeriodMonths);
+
+            // Update slider value displays
+            document.getElementById('assistableValue').textContent = safeFormat(inputs.assistableTasksTimePercentage * 100) + '%';
+            document.getElementById('assistableHours').textContent = safeFormat(inputs.hoursPerWeek * inputs.assistableTasksTimePercentage) + ' hrs/week';
+            document.getElementById('timeSavedValue').textContent = safeFormat(inputs.timeSavedPercentage * 100) + '%';
+            document.getElementById('timeSavedHours').textContent = safeFormat(result.hoursPerWeekSaved, 1) + ' hrs/week';
+
+            // Update formulas with actual values
+            updateFormulas(inputs, result);
+
+            // Update calculation flow
+            updateCalculationFlow(inputs, result);
+
+            // Update ROI Summary
+            document.getElementById('roiValue').textContent = safeFormat(result.roi) + '%';
+            document.getElementById('netBenefit').textContent = safeCurrency(result.netBenefit);
+            document.getElementById('totalBenefit').textContent = safeCurrency(result.totalBenefit);
+            document.getElementById('totalCost').textContent = safeCurrency(result.totalCost);
+            // Handle special cases for payback period
+            const paybackText = result.paybackPeriodMonths === 0 ? 'Never (no benefit)' : 
+                               result.paybackPeriodMonths > 999 ? '999+ months' : 
+                               safeFormat(result.paybackPeriodMonths) + ' months';
+            document.getElementById('paybackPeriod').textContent = paybackText;
+            document.getElementById('monthlyBenefit').textContent = safeCurrency(result.monthlyBenefit);
+
+            // Update Intermediate Results
+            document.getElementById('effectiveAssistableHours').textContent = safeFormat(result.effectiveAssistableHours) + ' hrs/week/engineer';
+            document.getElementById('hoursPerWeekSaved').textContent = safeFormat(result.hoursPerWeekSaved, 1) + ' hrs/week/engineer';
+            document.getElementById('totalHoursSaved').textContent = safeFormat(result.totalHoursSaved) + ' hours';
+            document.getElementById('setupTrainingCost').textContent = safeCurrency(result.setupAndTrainingCostPerEngineer);
+            document.getElementById('initialImplementationCost').textContent = safeCurrency(result.initialImplementationCost);
+            document.getElementById('recurringCosts').textContent = safeCurrency(result.recurringCosts);
+            document.getElementById('oneTimeCosts').textContent = safeCurrency(result.oneTimeCosts);
+            document.getElementById('maintenanceEngineerCosts').textContent = safeCurrency(result.maintenanceEngineerCosts);
+            document.getElementById('hostingCosts').textContent = safeCurrency(result.hostingCosts);
+        }
+
+        function updateFormulas(inputs, result) {
+            // Helper function to format numbers safely
+            const fmt = (num) => {
+                if (!isFinite(num) || isNaN(num)) return '0';
+                return (Math.round(num * 100) / 100).toString();
+            };
+            const fmtCurrency = (num) => {
+                if (!isFinite(num) || isNaN(num)) return '$0';
+                return '$' + Math.round(num).toLocaleString();
+            };
+            
+            // Update ROI formula
+            document.querySelector('[data-formula="roi"]').innerHTML = 
+                `ROI =<br>(// ${fmtCurrency(result.netBenefit)}<br>Net Benefit ÷<br>// ${fmtCurrency(result.totalCost)}<br>Total Cost) ×<br>100%`;
+            
+            // Update Net Benefit formula
+            document.querySelector('[data-formula="netBenefit"]').innerHTML = 
+                `Net Benefit =<br>// ${fmtCurrency(result.totalBenefit)}<br>Total Benefit -<br>// ${fmtCurrency(result.totalCost)}<br>Total Cost`;
+            
+            // Update Total Benefit formula
+            document.querySelector('[data-formula="totalBenefit"]').innerHTML = 
+                `Total Benefit =<br>// ${Math.round(result.totalHoursSaved).toLocaleString()}<br>Total Hours Saved ×<br>// $${inputs.engineerHourlyCost}<br>Engineer Cost`;
+            
+            // Update Total Cost formula
+            document.querySelector('[data-formula="totalCost"]').innerHTML = 
+                `Total Cost =<br>// ${fmtCurrency(result.recurringCosts)}<br>Recurring Costs +<br>// ${fmtCurrency(result.oneTimeCosts)}<br>One-time Costs +<br>// ${fmtCurrency(result.maintenanceEngineerCosts)}<br>Maintenance Engineer Costs`;
+            
+            // Update Payback Period formula
+            document.querySelector('[data-formula="paybackPeriod"]').innerHTML = 
+                `Payback Period =<br>// ${fmtCurrency(result.totalCost)}<br>Total Cost ÷<br>// ${fmtCurrency(result.monthlyBenefit)}<br>Monthly Benefit`;
+            
+            // Update Monthly Benefit formula
+            document.querySelector('[data-formula="monthlyBenefit"]').innerHTML = 
+                `Monthly Benefit =<br>// ${fmtCurrency(result.totalBenefit)}<br>Total Benefit ÷<br>// ${inputs.calculationPeriodMonths}<br>Calculation Period (months)`;
+            
+            // Update Effective Improvable Hours formula
+            document.querySelector('[data-formula="effectiveAssistableHours"]').innerHTML = 
+                `Effective Improvable Hours =<br>// ${inputs.hoursPerWeek}<br>Hours Per Week ×<br>// ${Math.round(inputs.assistableTasksTimePercentage * 100)}%<br>Improvable Work Time %`;
+            
+            // Update Hours Saved Per Week formula
+            document.querySelector('[data-formula="hoursPerWeekSaved"]').innerHTML = 
+                `Hours Saved Per Week =<br>// ${fmt(result.effectiveAssistableHours)}<br>Effective Improvable Hours ×<br>// ${Math.round(inputs.timeSavedPercentage * 100)}%<br>Time Savings %`;
+            
+            // Update Total Hours Saved formula
+            document.querySelector('[data-formula="totalHoursSaved"]').innerHTML = 
+                `Total Hours Saved =<br>// ${inputs.numEngineers}<br>Team Size ×<br>// ${fmt(result.hoursPerWeekSaved)}<br>Hours Saved Per Week ×<br>// ${inputs.calculationPeriodWeeks}<br>Calculation Period`;
+            
+            // Update Setup Cost Per Engineer formula
+            document.querySelector('[data-formula="setupTrainingCost"]').innerHTML = 
+                `Setup Cost Per Engineer =<br>// ${inputs.weeksToSetupAndTrain}<br>Setup/Training Time (per engineer) ×<br>// ${inputs.hoursPerWeek}<br>Hours Per Week ×<br>// $${inputs.engineerHourlyCost}<br>Engineer Cost`;
+            
+            // Update Initial Implementation Cost formula
+            document.querySelector('[data-formula="initialImplementationCost"]').innerHTML = 
+                `Initial Implementation Cost =<br>// ${inputs.initialImplementationWeeks}<br>Initial Implementation Time ×<br>// ${inputs.hoursPerWeek}<br>Hours Per Week ×<br>// $${inputs.maintenanceEngineerHourlyCost}<br>Maintenance Engineer Cost`;
+            
+            // Update Recurring Costs formula
+            document.querySelector('[data-formula="recurringCosts"]').innerHTML = 
+                `Recurring Costs =<br>// ${inputs.numEngineers}<br>Team Size ×<br>// $${inputs.agentToolCostPerEngineerPerMonth}<br>Tool Cost Per Month ×<br>// ${fmt(result.totalMonths)}<br>Total Months`;
+            
+            // Update One-time Costs formula
+            document.querySelector('[data-formula="oneTimeCosts"]').innerHTML = 
+                `One-time Costs =<br>// ${inputs.numEngineers}<br>Team Size ×<br>// ${fmtCurrency(result.setupAndTrainingCostPerEngineer)}<br>Setup/Training Cost Per Engineer`;
+            
+            // Update Maintenance Costs formula
+            document.querySelector('[data-formula="maintenanceEngineerCosts"]').innerHTML = 
+                `Maintenance Costs =<br>// ${inputs.maintenanceEngineers}<br>Maintenance Engineers ×<br>// $${inputs.maintenanceEngineerHourlyCost}<br>Maintenance Cost Per Hour ×<br>// ${inputs.hoursPerWeek}<br>Hours Per Week ×<br>// ${inputs.calculationPeriodWeeks}<br>Calculation Period`;
+        }
+
+        function toggleCalculationFlow() {
+            const flowElement = document.getElementById('calculationFlow');
+            flowElement.classList.toggle('expanded');
+        }
+
+        function updateCalculationFlow(inputs, result) {
+            const fmt = (num) => Math.round(num * 100) / 100;
+            const fmtCurrency = (num) => '$' + Math.round(num).toLocaleString();
+            
+            const flowContent = `
+                <div class="flow-section">
+                    <h4>1. Input Parameters</h4>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Team Size</span> = <span class="flow-result">${inputs.numEngineers}</span> engineers<br>
+                        <span class="flow-variable">Engineer Cost</span> = <span class="flow-result">$${inputs.engineerHourlyCost}</span>/hour<br>
+                        <span class="flow-variable">Hours Per Week</span> = <span class="flow-result">${inputs.hoursPerWeek}</span> hours<br>
+                        <span class="flow-variable">Calculation Period</span> = <span class="flow-result">${inputs.calculationPeriodMonths}</span> months (${Math.round(inputs.calculationPeriodWeeks)} weeks)<br>
+                        <span class="flow-variable">Improvable Work Time</span> = <span class="flow-result">${Math.round(inputs.assistableTasksTimePercentage * 100)}%</span><br>
+                        <span class="flow-variable">Time Savings</span> = <span class="flow-result">${Math.round(inputs.timeSavedPercentage * 100)}%</span><br>
+                        <span class="flow-variable">Initial Implementation Time</span> = <span class="flow-result">${inputs.initialImplementationWeeks}</span> weeks<br>
+                        <span class="flow-variable">Tool Cost Per Month</span> = <span class="flow-result">$${inputs.agentToolCostPerEngineerPerMonth}</span>/engineer<br>
+                        <span class="flow-variable">Setup/Training Time</span> = <span class="flow-result">${inputs.weeksToSetupAndTrain}</span> weeks per engineer<br>
+                        <span class="flow-variable">Maintenance Engineers</span> = <span class="flow-result">${inputs.maintenanceEngineers}</span><br>
+                        <span class="flow-variable">Maintenance Engineer Cost</span> = <span class="flow-result">$${inputs.maintenanceEngineerHourlyCost}</span>/hour<br>
+                        <span class="flow-variable">Hosting Cost Per Month</span> = <span class="flow-result">$${inputs.hostingCostPerMonth}</span>/month
+                    </div>
+                </div>
+
+                <div class="flow-section">
+                    <h4>2. Intermediate Calculations</h4>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Effective Improvable Hours</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.hoursPerWeek}</span> <span class="flow-operator">×</span> <span class="flow-variable">${Math.round(inputs.assistableTasksTimePercentage * 100)}%</span> <span class="flow-operator">=</span> <span class="flow-result">${fmt(result.effectiveAssistableHours)}</span> hrs/week/engineer
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Hours Saved Per Week</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${fmt(result.effectiveAssistableHours)}</span> <span class="flow-operator">×</span> <span class="flow-variable">${Math.round(inputs.timeSavedPercentage * 100)}%</span> <span class="flow-operator">=</span> <span class="flow-result">${fmt(result.hoursPerWeekSaved)}</span> hrs/week/engineer
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Total Hours Saved</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.numEngineers}</span> <span class="flow-operator">×</span> <span class="flow-variable">${fmt(result.hoursPerWeekSaved)}</span> <span class="flow-operator">×</span> <span class="flow-variable">${Math.round(inputs.calculationPeriodWeeks)}</span> weeks <span class="flow-operator">=</span> <span class="flow-result">${Math.round(result.totalHoursSaved).toLocaleString()}</span> hours
+                    </div>
+                </div>
+
+                <div class="flow-section">
+                    <h4>3. Benefit Calculation</h4>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Total Benefit</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${Math.round(result.totalHoursSaved).toLocaleString()}</span> hours <span class="flow-operator">×</span> <span class="flow-variable">$${inputs.engineerHourlyCost}</span>/hour <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.totalBenefit)}</span>
+                    </div>
+                </div>
+
+                <div class="flow-section">
+                    <h4>4. Cost Calculations</h4>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Setup Cost Per Engineer</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.weeksToSetupAndTrain}</span> weeks <span class="flow-operator">×</span> <span class="flow-variable">${inputs.hoursPerWeek}</span> hrs/week <span class="flow-operator">×</span> <span class="flow-variable">$${inputs.engineerHourlyCost}</span>/hour <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.setupAndTrainingCostPerEngineer)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Initial Implementation Cost</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.initialImplementationWeeks}</span> weeks <span class="flow-operator">×</span> <span class="flow-variable">${inputs.hoursPerWeek}</span> hrs/week <span class="flow-operator">×</span> <span class="flow-variable">$${inputs.maintenanceEngineerHourlyCost}</span>/hour <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.initialImplementationCost)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Recurring Costs</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.numEngineers}</span> engineers <span class="flow-operator">×</span> <span class="flow-variable">$${inputs.agentToolCostPerEngineerPerMonth}</span>/month <span class="flow-operator">×</span> <span class="flow-variable">${inputs.calculationPeriodMonths}</span> months <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.recurringCosts)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">One-time Costs</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;(<span class="flow-variable">${inputs.numEngineers}</span> <span class="flow-operator">×</span> <span class="flow-variable">${fmtCurrency(result.setupAndTrainingCostPerEngineer)}</span>) <span class="flow-operator">+</span> <span class="flow-variable">${fmtCurrency(result.initialImplementationCost)}</span> <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.oneTimeCosts)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Maintenance Engineer Costs</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${inputs.maintenanceEngineers}</span> engineers <span class="flow-operator">×</span> <span class="flow-variable">$${inputs.maintenanceEngineerHourlyCost}</span>/hour <span class="flow-operator">×</span> <span class="flow-variable">${inputs.hoursPerWeek}</span> hrs/week <span class="flow-operator">×</span> <span class="flow-variable">${Math.round(inputs.calculationPeriodWeeks)}</span> weeks <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.maintenanceEngineerCosts)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Hosting/Infrastructure Costs</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">$${inputs.hostingCostPerMonth}</span>/month <span class="flow-operator">×</span> <span class="flow-variable">${inputs.calculationPeriodMonths}</span> months <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.hostingCosts)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Total Cost</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${fmtCurrency(result.recurringCosts)}</span> <span class="flow-operator">+</span> <span class="flow-variable">${fmtCurrency(result.oneTimeCosts)}</span> <span class="flow-operator">+</span> <span class="flow-variable">${fmtCurrency(result.maintenanceEngineerCosts)}</span> <span class="flow-operator">+</span> <span class="flow-variable">${fmtCurrency(result.hostingCosts)}</span> <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.totalCost)}</span>
+                    </div>
+                </div>
+
+                <div class="flow-section">
+                    <h4>5. Final ROI Calculation</h4>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Net Benefit</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${fmtCurrency(result.totalBenefit)}</span> <span class="flow-operator">-</span> <span class="flow-variable">${fmtCurrency(result.totalCost)}</span> <span class="flow-operator">=</span> <span class="flow-result">${fmtCurrency(result.netBenefit)}</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">ROI</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;(<span class="flow-variable">${fmtCurrency(result.netBenefit)}</span> <span class="flow-operator">÷</span> <span class="flow-variable">${fmtCurrency(result.totalCost)}</span>) <span class="flow-operator">×</span> <span class="flow-variable">100%</span> <span class="flow-operator">=</span> <span class="flow-result">${Math.round(result.roi)}%</span>
+                    </div>
+                    <div class="flow-calculation">
+                        <span class="flow-variable">Payback Period</span> <span class="flow-operator">=</span><br>
+                        &nbsp;&nbsp;<span class="flow-variable">${fmtCurrency(result.totalCost)}</span> <span class="flow-operator">÷</span> <span class="flow-variable">${fmtCurrency(result.monthlyBenefit)}</span>/month <span class="flow-operator">=</span> <span class="flow-result">${result.paybackPeriodMonths}</span> months
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('flowDiagram').innerHTML = flowContent;
+        }
+
+        function shareCalculation() {
+            // Ensure URL is up to date with current form values
+            updateUrlParams();
+            const currentUrl = window.location.href;
+            
+            // Update the href attribute of the share button
+            const shareButton = document.getElementById('shareButton');
+            shareButton.href = currentUrl;
+            
+            // Try to copy to clipboard
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(currentUrl).then(() => {
+                    // Show success message
+                    const originalText = shareButton.innerHTML;
+                    shareButton.innerHTML = '✅ Copied to Clipboard!';
+                    shareButton.style.background = '#27ae60';
+                    
+                    setTimeout(() => {
+                        shareButton.innerHTML = originalText;
+                        shareButton.style.background = '#3498db';
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback for clipboard failure
+                    showShareDialog(currentUrl);
+                });
+            } else {
+                // Fallback for browsers without clipboard API
+                showShareDialog(currentUrl);
+            }
+        }
+
+        function showShareDialog(url) {
+            // Ensure URL is up to date before showing dialog
+            updateUrlParams();
+            const updatedUrl = window.location.href;
+            
+            // Create a temporary text area to select the URL
+            const textArea = document.createElement('textarea');
+            textArea.value = updatedUrl;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const button = document.getElementById('shareButton');
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied to Clipboard!';
+                button.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '#3498db';
+                }, 2000);
+            } catch (err) {
+                // If copy fails, show an alert with the URL
+                alert('Copy this URL to share your calculation:\n\n' + updatedUrl);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const urlValues = {};
+            
+            // Parse URL parameters and use them if present, otherwise use initial values
+            urlValues.title = params.get('title') ? decodeURIComponent(params.get('title')) : initialValues.title;
+            urlValues.numEngineers = params.get('engineers') ? parseFloat(params.get('engineers')) : initialValues.numEngineers;
+            urlValues.engineerHourlyCost = params.get('hourly') ? parseFloat(params.get('hourly')) : initialValues.engineerHourlyCost;
+            urlValues.hoursPerWeek = params.get('hours') ? parseFloat(params.get('hours')) : initialValues.hoursPerWeek;
+            urlValues.calculationPeriodMonths = params.get('months') ? parseFloat(params.get('months')) : initialValues.calculationPeriodMonths;
+            urlValues.assistableTasksTimePercentage = params.get('assistable') ? parseFloat(params.get('assistable')) : initialValues.assistableTasksTimePercentage;
+            urlValues.timeSavedPercentage = params.get('timesaved') ? parseFloat(params.get('timesaved')) : initialValues.timeSavedPercentage;
+            urlValues.agentToolCostPerEngineerPerMonth = params.get('toolcost') ? parseFloat(params.get('toolcost')) : initialValues.agentToolCostPerEngineerPerMonth;
+            urlValues.weeksToSetupAndTrain = params.get('setup') ? parseFloat(params.get('setup')) : initialValues.weeksToSetupAndTrain;
+            urlValues.maintenanceEngineers = params.get('maintenance') ? parseFloat(params.get('maintenance')) : initialValues.maintenanceEngineers;
+            urlValues.maintenanceEngineerHourlyCost = params.get('maintcost') ? parseFloat(params.get('maintcost')) : initialValues.maintenanceEngineerHourlyCost;
+            urlValues.initialImplementationWeeks = params.get('implementation') ? parseFloat(params.get('implementation')) : initialValues.initialImplementationWeeks;
+            urlValues.hostingCostPerMonth = params.get('hosting') ? parseFloat(params.get('hosting')) : initialValues.hostingCostPerMonth;
+            
+            return urlValues;
+        }
+
+        function updateUrlParams() {
+            const titleElement = document.getElementById('calculatorTitle');
+            const title = titleElement ? titleElement.value : initialValues.title;
+            const inputs = getInputs();
+            const params = new URLSearchParams();
+            
+            // Only add parameters that differ from initial values to keep URL clean
+            if (title !== initialValues.title) params.set('title', encodeURIComponent(title));
+            if (inputs.numEngineers !== initialValues.numEngineers) params.set('engineers', inputs.numEngineers);
+            if (inputs.engineerHourlyCost !== initialValues.engineerHourlyCost) params.set('hourly', inputs.engineerHourlyCost);
+            if (inputs.hoursPerWeek !== initialValues.hoursPerWeek) params.set('hours', inputs.hoursPerWeek);
+            if (inputs.calculationPeriodMonths !== initialValues.calculationPeriodMonths) params.set('months', inputs.calculationPeriodMonths);
+            if (inputs.assistableTasksTimePercentage * 100 !== initialValues.assistableTasksTimePercentage) params.set('assistable', inputs.assistableTasksTimePercentage * 100);
+            if (inputs.timeSavedPercentage * 100 !== initialValues.timeSavedPercentage) params.set('timesaved', inputs.timeSavedPercentage * 100);
+            if (inputs.agentToolCostPerEngineerPerMonth !== initialValues.agentToolCostPerEngineerPerMonth) params.set('toolcost', inputs.agentToolCostPerEngineerPerMonth);
+            if (inputs.weeksToSetupAndTrain !== initialValues.weeksToSetupAndTrain) params.set('setup', inputs.weeksToSetupAndTrain);
+            if (inputs.maintenanceEngineers !== initialValues.maintenanceEngineers) params.set('maintenance', inputs.maintenanceEngineers);
+            if (inputs.maintenanceEngineerHourlyCost !== initialValues.maintenanceEngineerHourlyCost) params.set('maintcost', inputs.maintenanceEngineerHourlyCost);
+            if (inputs.initialImplementationWeeks !== initialValues.initialImplementationWeeks) params.set('implementation', inputs.initialImplementationWeeks);
+            if (inputs.hostingCostPerMonth !== initialValues.hostingCostPerMonth) params.set('hosting', inputs.hostingCostPerMonth);
+            
+            const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            
+            // Update the share button href
+            const shareButton = document.getElementById('shareButton');
+            if (shareButton) {
+                shareButton.href = window.location.href;
+            }
+        }
+
+        function initializeForm() {
+            const values = getUrlParams();
+            
+            // Set form values from URL parameters or initial values
+            document.getElementById('calculatorTitle').value = values.title;
+            document.getElementById('numEngineers').value = values.numEngineers;
+            document.getElementById('engineerHourlyCost').value = values.engineerHourlyCost;
+            document.getElementById('hoursPerWeek').value = values.hoursPerWeek;
+            document.getElementById('calculationPeriodWeeks').value = values.calculationPeriodMonths;
+            document.getElementById('assistableTasksTimePercentage').value = values.assistableTasksTimePercentage;
+            document.getElementById('timeSavedPercentage').value = values.timeSavedPercentage;
+            document.getElementById('agentToolCostPerEngineerPerMonth').value = values.agentToolCostPerEngineerPerMonth;
+            document.getElementById('weeksToSetupAndTrain').value = values.weeksToSetupAndTrain;
+            document.getElementById('maintenanceEngineers').value = values.maintenanceEngineers;
+            document.getElementById('maintenanceEngineerHourlyCost').value = values.maintenanceEngineerHourlyCost;
+            document.getElementById('initialImplementationWeeks').value = values.initialImplementationWeeks;
+            document.getElementById('hostingCostPerMonth').value = values.hostingCostPerMonth;
+        }
+
+        // Add event listeners to all inputs for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize form with default values
+            initializeForm();
+
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.id === 'calculatorTitle') {
+                    // Title input only needs URL updates, not output recalculation
+                    input.addEventListener('input', updateUrlParams);
+                    input.addEventListener('change', updateUrlParams);
+                } else {
+                    // Other inputs need both output updates and URL updates
+                    input.addEventListener('input', function() {
+                        updateOutputs();
+                        updateUrlParams();
+                    });
+                    input.addEventListener('change', function() {
+                        updateOutputs();
+                        updateUrlParams();
+                    });
+                }
+            });
+
+            // Initial calculation
+            updateOutputs();
+        });
+    </script>
+</body>
+</html>
